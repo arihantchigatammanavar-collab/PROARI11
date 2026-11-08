@@ -139,84 +139,78 @@
     </div>
   </div>
 
-  <script type="module">
-    import { auth } from "./firebase.js";
+ 
+<script type="module">
+  import { auth } from "./firebase.js";
 
-    import {
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      sendPasswordResetEmail,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+  import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const message = document.getElementById("message");
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const message = document.getElementById("message");
 
-    const authSection = document.getElementById("authSection");
-    const dashboard = document.getElementById("dashboard");
+  const authSection = document.getElementById("authSection");
+  const dashboard = document.getElementById("dashboard");
 
-    function showMessage(text) {
-      message.textContent = text;
+  function showMessage(text) {
+    message.textContent = text;
+  }
+
+  // Create a new account
+  document.getElementById("signupBtn").addEventListener("click", async () => {
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        email.value.trim(),
+        password.value
+      );
+    } catch (error) {
+      showMessage(error.message);
     }
+  });
 
-    document.getElementById("signupBtn").addEventListener("click", async () => {
-      try {
-        await createUserWithEmailAndPassword(
-          auth, email.value.trim(), password.value
-        );
-        showMessage("Account created successfully!");
-      } catch (error) {
-        showMessage(error.message);
+  // Login existing account
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        email.value.trim(),
+        password.value
+      );
+    } catch (error) {
+      showMessage(error.message);
+    }
+  });
+
+  // Forgot password
+  document.getElementById("forgotBtn").addEventListener("click", async () => {
+    try {
+      if (!email.value.trim()) {
+        showMessage("Enter your email address first.");
+        return;
       }
-    });
 
-    document.getElementById("loginBtn").addEventListener("click", async () => {
-      try {
-        await signInWithEmailAndPassword(
-          auth, email.value.trim(), password.value
-        );
-        showMessage("Login successful!");
-      } catch (error) {
-        showMessage(error.message);
-      }
-    });
+      await sendPasswordResetEmail(auth, email.value.trim());
+      showMessage("Password reset email sent. Check your inbox.");
+    } catch (error) {
+      showMessage(error.message);
+    }
+  });
 
-    document.getElementById("forgotBtn").addEventListener("click", async () => {
-      try {
-        if (!email.value.trim()) {
-          showMessage("Enter your email address first.");
-          return;
-        }
-
-        await sendPasswordResetEmail(auth, email.value.trim());
-        showMessage("Password reset email sent. Check your inbox.");
-      } catch (error) {
-        showMessage(error.message);
-      }
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        showMessage("Logged out successfully.");
-      } catch (error) {
-        showMessage(error.message);
-      }
-    });
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        authSection.style.display = "none";
-        dashboard.style.display = "block";
-        document.getElementById("userEmail").textContent = user.email;
-      } else {
-        authSection.style.display = "block";
-        dashboard.style.display = "none";
-      }
-    });
-  </script>
-
+  // Check login status
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.location.href = "index.html";
+    } else {
+      authSection.style.display = "block";
+      dashboard.style.display = "none";
+    }
+  });
+</script>
 </body>
 </html>
